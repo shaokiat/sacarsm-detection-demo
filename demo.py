@@ -13,7 +13,11 @@ import pickle
 
 import streamlit as st
 
-add_selectbox = st.sidebar.radio(
+
+
+st.sidebar.title('Team 35 Sarcasm Redditector')
+
+page = st.sidebar.radio(
     "Select Model",
     ("TF-IDF", "LSTM")
 )
@@ -43,18 +47,26 @@ add_selectbox = st.sidebar.radio(
 # acc = accuracy_score(y_valid, valid_pred)
 
 # st.write(acc)
+if page == 'TF-IDF' :
+    st.title('TF-IDF Model Prediction')
+    tf_idf = pickle.load(open("tf_idf.pickle", "rb"))
+    logit = pickle.load(open("logit.pickle", "rb"))
 
-tf_idf = pickle.load(open("tf_idf.pickle", "rb"))
-logit = pickle.load(open("logit.pickle", "rb"))
+    def predict_sarcasm(s):
+        testing = tf_idf.transform([s])
+        pred = logit.predict_proba(testing)
+        st.write('Probability of sarcasm:', pred[0][1])
+        if pred[0][1] >= 0.5: # not too sure which is which though
+            return "It's a sarcasm"
+        else:
+            return "Not a sarcasm"
 
-def predict_sarcasm(s):
-    testing = tf_idf.transform([s])
-    pred = logit.predict_proba(testing)
-    st.write(pred[0][1])
-    if pred[0][1] >= 0.5: # not too sure which is which though
-        return "It's a sarcasm"
-    else:
-        return "Not a sarcasm"
+    text = st.text_input("Input your text")
+    st.write(predict_sarcasm(text))
 
-text = st.text_input("Input your text")
-st.write(predict_sarcasm(text))
+if page == 'LSTM' :
+    st.title('LSTM Model Prediction')
+    # tf_idf = pickle.load(open("tf_idf.pickle", "rb"))
+    # logit = pickle.load(open("logit.pickle", "rb"))
+    text = st.text_input("Input your text")
+    
