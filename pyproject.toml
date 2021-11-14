@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "sarcasm-demo"
+name = "cs3244-demo"
 version = "0.1.0"
-description = "CS3244 demo"
+description = ""
 authors = ["shaokiat <shaokiat@gmail.com>"]
 
 [tool.poetry.dependencies]
@@ -9,7 +9,6 @@ python = "^3.9"
 streamlit = "^1.2.0"
 scikit-learn = "^1.0.1"
 seaborn = "^0.11.2"
-matplotlib = "^3.4.3"
 
 [tool.poetry.dev-dependencies]
 
