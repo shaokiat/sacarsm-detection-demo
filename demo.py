@@ -10,6 +10,10 @@ from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, r
 import seaborn as sns
 from matplotlib import pyplot as plt
 import pickle
+from tensorflow import keras
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+import tensorflow as tf
+
 
 import streamlit as st
 
@@ -19,54 +23,61 @@ st.sidebar.title('Team 35 Sarcasm Redditector')
 
 page = st.sidebar.radio(
     "Select Model",
-    ("TF-IDF", "LSTM")
+    ("Both Models","TF-IDF", "LSTM")
 )
 
-# train_df = pd.read_csv("train-balanced-sarcasm.csv")
-# train_df.head()
+# Load tf-idf model
+tf_idf = pickle.load(open("tf_idf.pickle", "rb"))
+logit = pickle.load(open("logit.pickle", "rb"))
 
-# train_df.dropna(subset=['comment'], inplace=True)
+def predict_tdidf(s):
+    testing = tf_idf.transform([s])
+    pred = logit.predict_proba(testing)
+    st.write('**Probability of sarcasm:**', round(pred[0][1], 4))
+    if pred[0][1] >= 0.5: # not too sure which is which though
+        return "It's a sarcastic comment 🤡" 
+    else:
+        return "It's not sarcastic comment 😎"
 
-# train_texts, valid_texts, y_train, y_valid = train_test_split(train_df['comment'], train_df['label'], random_state=17)
+# Load LSTM Model
+tokenizer_obj = pickle.load(open("tokenizer.pickle", "rb"))
+lstm_model = keras.models.load_model("finalLSTM")
 
-# train_df.loc[train_df['label'] == 1, 'comment'].str.len().apply(np.log1p).hist(label='sarcastic', alpha=.5)
-# train_df.loc[train_df['label'] == 0, 'comment'].str.len().apply(np.log1p).hist(label='normal', alpha=.5)
-# plt.legend();
+@tf.autograph.experimental.do_not_convert
+def predict_lstm(s):
+    text_lines = pd.DataFrame({s:[]})
+    print(text_lines)
+    test_sequences = tokenizer_obj.texts_to_sequences(text_lines)
+    test_review_pad = pad_sequences(test_sequences, maxlen=25, padding='post')
+    pred = lstm_model.predict(test_review_pad)
+    st.write('Probability of sarcasm:', round(pred[0][0], 4))
+    if pred[0][0]>=0.5: 
+        return "It's a sarcastic comment 🤡" 
+    else: 
+        return "It's not sarcastic comment 😎"
 
-# tf_idf = TfidfVectorizer(ngram_range=(1, 1), max_features=500, min_df=2)
-# logit = sklearn.linear_model.LogisticRegression(C=1, n_jobs=4, solver='lbfgs', verbose=1)
+if page == 'Both Models' :
+    selected_text = st.selectbox('Select one statement', ['yeah right', 'dogs'])
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write('## TF-IDF Model Prediction')
+        st.write(predict_tdidf(selected_text))
 
-# X_train_texts = tf_idf.fit_transform(train_texts)
-# X_valid_texts = tf_idf.transform(valid_texts)
+    with col2:
+        st.write('## LSTM Model Prediction')
+        st.write(predict_lstm(selected_text))
 
-# logit.fit(X_train_texts, y_train)
-
-# valid_pred = logit.predict(X_valid_texts)
-# valid_pred_proba = logit.predict_proba(X_valid_texts)
-
-# acc = accuracy_score(y_valid, valid_pred)
-
-# st.write(acc)
 if page == 'TF-IDF' :
     st.title('TF-IDF Model Prediction')
-    tf_idf = pickle.load(open("tf_idf.pickle", "rb"))
-    logit = pickle.load(open("logit.pickle", "rb"))
-
-    def predict_sarcasm(s):
-        testing = tf_idf.transform([s])
-        pred = logit.predict_proba(testing)
-        st.write('Probability of sarcasm:', pred[0][1])
-        if pred[0][1] >= 0.5: # not too sure which is which though
-            return "It's a sarcasm"
-        else:
-            return "Not a sarcasm"
 
     text = st.text_input("Input your text")
-    st.write(predict_sarcasm(text))
+    st.write(predict_tdidf(text))
 
 if page == 'LSTM' :
     st.title('LSTM Model Prediction')
-    # tf_idf = pickle.load(open("tf_idf.pickle", "rb"))
-    # logit = pickle.load(open("logit.pickle", "rb"))
-    text = st.text_input("Input your text")
     
+    text = st.text_input("Input your text")
+    st.write(predict_lstm(text))
+    
+
+
