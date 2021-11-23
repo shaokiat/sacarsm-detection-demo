@@ -11,6 +11,7 @@ scikit-learn = "^1.0.1"
 seaborn = "^0.11.2"
 kaggle = "^1.5.12"
 keras = "^2.7.0"
+tensorflow = "2.0.0"
 
 [tool.poetry.dev-dependencies]
 
