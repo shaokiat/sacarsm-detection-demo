@@ -57,7 +57,8 @@ def predict_lstm(s):
         return "It's not sarcastic comment 😎"
 
 if page == 'Both Models' :
-    selected_text = st.selectbox('Select one statement', ['yeah right', 'dogs'])
+    # selected_text = st.selectbox('Select one statement', ['yeah right', 'dogs'])
+    selected_text = st.text_input("Input your text")
     col1, col2 = st.columns(2)
     with col1:
         st.write('## TF-IDF Model Prediction')
