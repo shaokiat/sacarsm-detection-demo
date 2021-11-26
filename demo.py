@@ -37,7 +37,7 @@ def predict_tdidf(s):
     if pred[0][1] >= 0.5: # not too sure which is which though
         return "It's a sarcastic comment 🤡" 
     else:
-        return "It's not sarcastic comment 😎"
+        return "It's not a sarcastic comment 😎"
 
 # Load LSTM Model
 tokenizer_obj = pickle.load(open("tokenizer.pickle", "rb"))
@@ -54,7 +54,7 @@ def predict_lstm(s):
     if pred[0][0]>=0.5: 
         return "It's a sarcastic comment 🤡" 
     else: 
-        return "It's not sarcastic comment 😎"
+        return "It's not a sarcastic comment 😎"
 
 if page == 'Both Models' :
     # selected_text = st.selectbox('Select one statement', ['yeah right', 'dogs'])
